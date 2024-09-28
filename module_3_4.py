@@ -1,13 +1,13 @@
 print('Задача "Однокоренные":')
-def get_multiplied_digits(number):
-    number = int(number)
-    str_number = str(number)
-    first = int(str_number[0])
-    while str_number.endswith('0'):
-            str_number = str_number[:len(str_number)-1]
-    if len(str_number) > 1:
-        return first * get_multiplied_digits(int(str_number[1:]))
-    else:
-        return first
-num = input('Введите число: ')
-print(f'Произведение цифр числа {num} :', get_multiplied_digits(num))
+def single_root_words(root_word, *other_words):
+    same_words = []
+    for i in other_words:
+        if root_word.lower() in i.lower() or i.lower() in root_word.lower():
+            same_words.append(i)
+    return same_words
+
+
+result1 = single_root_words('rich', 'richiest', 'orichalcum', 'cheers', 'richies')
+result2 = single_root_words('Disablement', 'Able', 'Mable', 'Disable', 'Bagel')
+print(result1)
+print(result2)
