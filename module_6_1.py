@@ -1,4 +1,4 @@
-print('Задача "Съедобное, несъедобное"::')
+print('Задача "Съедобное, несъедобное":')
 class Animal:
     alive = True
     fed = False
@@ -20,8 +20,10 @@ class Plant:
 
 class Mammal(Animal):
     pass
+    
 class Predator(Animal):
     pass
+    
 class Flower(Plant):
     pass
 
