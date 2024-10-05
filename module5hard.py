@@ -1,109 +1,110 @@
-import hashlib
-
+print('Задание "Свой YouTube":')
+import time
 
 class User:
     def __init__(self, nickname, password, age):
         self.nickname = nickname
-        self.password = hashlib.sha256(password.encode()).hexdigest()
+        self.password = hash(password)
         self.age = age
-        self.adult_mode = False
 
-    def toggle_adult_mode(self):
-        self.adult_mode = not self.adult_mode
+    def __str__(self):
+        return f'{self.nickname}'
 
+    def __eq__(self, other):
+        return self.nickname == other.nickname
+
+    def __hash__(self):
+        return hash(self.password)
 
 class Video:
-    def __init__(self, title, description, adult_mode):
+    def __init__(self, title, duration, adult_mode=False):
         self.title = title
-        self.description = description
-        self.adult_mode = adult_mode
+        self.duration = duration
         self.time_now = 0
+        self.adult_mode = adult_mode
 
+    def __eq__(self, other):
+        return self.title == other.title
 
+    def __str__(self):
+        return f'{self.title}'
+
+    def dur(self):
+        return self.duration
 class UrTube:
     def __init__(self):
-        self.users = {}  # Хранит пользователей
-        self.videos = []  # Хранит видео
+        self.users = []
+        self.videos = []
+        self.current_user = None
+
+    def log_in(self, nickname, password):
+        for i in self.users:
+            if i.nickname == nickname and i.password == hash(password):
+                self.current_user = i
+                return self.current_user
 
     def register(self, nickname, password, age):
-        if nickname in self.users:
-            raise ValueError("Пользователь с таким ником уже существует.")
-        self.users[nickname] = User(nickname, password, age)
-        print(f"Пользователь {nickname} успешно зарегистрирован.")
+        user = User(nickname, password, age)
+        if user not in self.users:
+            self.users.append(user)
+            self.log_out()
+            self.log_in(nickname, password)
+        else:
+            print(f'Пользователь {nickname} уже существует')
 
-    def log_out(self, nickname):
-        if nickname not in self.users:
-            raise ValueError("Пользователь не найден.")
+    def log_out(self):
+        self.current_user = None
 
-        print(f"Пользователь {nickname} успешно вышел из системы.")
+    def add(self, *args):
+        for i in args:
+            if i not in self.videos:
+                self.videos.append(i)
+            else:
+                print(f'Видео с названием {i.title} уже существует')
 
-    def login(self, nickname, password):
-        user = self.users.get(nickname)
-        if not user:
-            raise ValueError("Пользователь не найден.")
-        if user.password != hashlib.sha256(password.encode()).hexdigest():
-            raise ValueError("Неверный пароль.")
+    def get_videos(self, text):
+        listOfVideos = []
+        for i in self.videos:
+            if text.lower() in i.title.lower():
+                listOfVideos.append(str(i))
+        return listOfVideos
 
-    def add_video(self, title, description, adult_mode):
-        video = Video(title, description, adult_mode)
-        self.videos.append(video)
-        print(f"Видео {title} успешно добавлено.")
+    def watch_video(self, movie):
+        if self.current_user and self.current_user.age < 18:
+            print('Вам нет 18 лет, пожалуйста покиньте страницу')
+        elif self.current_user:
+            for video in self.videos:
+                if movie in video.title:
+                    for i in range(1, 11):
+                        print(i, end=' ')
+                        time.sleep(1)
+                    print('Конец видео')
+        else:
+            print('Войдите в аккаунт, чтобы смотреть видео')
 
-    def watch_video(self, nickname, title):
-        user = self.users.get(nickname)
-        if not user:
-            raise ValueError("Пользователь не найден.")
-
-        for video in self.videos:
-            if video.title.lower() == title.lower():
-                if video.adult_mode and not user.adult_mode and user.age < 18:
-                    raise ValueError("Доступ запрещен: это видео предназначено для взрослых.")
-                video.time_now += 1  # Увеличение времени просмотра
-                return f"Вы смотрите видео: {video.title} - {video.description} на секунде {video.time_now}"
-
-        raise ValueError("Видео не найдено.")
-
-    def get_videos(self):
-        return [
-            (video.title, video.description)
-            for video in self.videos
-            if not video.adult_mode or (video.adult_mode and any(user.adult_mode for user in self.users.values()))
-        ]
-
-
-# Пример использования
-if __name__ == "__main__":
-    urtube = UrTube()
-
-    # v1 = Video('Лучший язык программирования 2024 года', 200, False)
-    # v2 = Video('Для чего девушкам парень программист?', для, True)
-    # v3 = Video('Python vs Java', df, False)
-    v4 = Video("Python vs Java", "Python vs Java", False)
+if __name__ == '__main__':
+    # Код для проверки:
+    ur = UrTube()
+    v1 = Video('Лучший язык программирования 2024 года', 200)
+    v2 = Video('Для чего девушкам парень программист?', 10, adult_mode=True)
 
     # Добавление видео
-    urtube.add_video('Python vs Java', 'Python vs Java', False)
+    ur.add(v1, v2)
 
-    # Регистрация пользователей
-    urtube.register("john_doe", "password123", 20)
-    urtube.register("sasa", "securepass", 17)
+    # Проверка поиска
+    print(ur.get_videos('лучший'))
+    print(ur.get_videos('ПРОГ'))
 
-    # Добавление видео
+    # Проверка на вход пользователя и возрастное ограничение
+    ur.watch_video('Для чего девушкам парень программист?')
+    ur.register('vasya_pupkin', 'lolkekcheburek', 13)
+    ur.watch_video('Для чего девушкам парень программист?')
+    ur.register('urban_pythonist', 'iScX4vIJClb9YQavjAgF', 25)
+    ur.watch_video('Для чего девушкам парень программист?')
 
-    urtube.add_video("Python vs C++", "Python vs C++", False)
-    urtube.add_video("Happy Cats", "Cats being cute and happy.", False)
-    urtube.add_video("Adult Content", "This is an adult video.", True)
+    # Проверка входа в другой аккаунт
+    ur.register('vasya_pupkin', 'F8098FM8fjm9jmi', 55)
+    print(ur.current_user)
 
-    # Использование методов
-    print(urtube.watch_video("john_doe", "Python vs Java"))
-    try:
-        print(urtube.watch_video("sasa", "Python vs Java"))
-        print(urtube.watch_video("sasa", "Adult Content"))
-    except ValueError as e:
-        print(e)
-
-    # Переключение режима для взрослых
-    urtube.users["john_doe"].toggle_adult_mode()
-    print(urtube.watch_video("john_doe", "Adult Content"))
-
-    # Получение списка видео
-    print(urtube.get_videos())
+    # Попытка воспроизведения несуществующего видео
+    ur.watch_video('Лучший язык программирования 2024 года!')
