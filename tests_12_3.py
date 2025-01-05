@@ -1,4 +1,5 @@
-import runner_and_tournament as rnt
+import runner as r
+import runner_and_tournament as rt
 import unittest
 
 print('Задача "Заморозка кейсов":')
